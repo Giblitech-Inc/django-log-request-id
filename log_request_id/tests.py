@@ -45,18 +45,15 @@ class RequestIDLoggingTestCase(TestCase):
 
     def test_id_generation(self):
         request = self.factory.get(self.url)
-        middleware = RequestIDMiddleware(get_response=lambda request: None)
-        middleware.process_request(request)
+        RequestIDMiddleware(get_response=self.call_view)(request)
         self.assertTrue(hasattr(request, 'id'))
-        self.call_view(request)
         self.assertTrue(request.id in self.handler.messages[0])
 
     def test_external_id_in_http_header(self):
         with self.settings(LOG_REQUEST_ID_HEADER='REQUEST_ID_HEADER'):
             request = self.factory.get(self.url)
             request.META['REQUEST_ID_HEADER'] = 'some_request_id'
-            middleware = RequestIDMiddleware(get_response=lambda request: None)
-            middleware.process_request(request)
+            RequestIDMiddleware(get_response=self.call_view)(request)
             self.assertEqual(request.id, 'some_request_id')
             self.call_view(request)
             self.assertTrue('some_request_id' in self.handler.messages[0])
@@ -75,10 +72,8 @@ class RequestIDLoggingTestCase(TestCase):
     def test_external_id_missing_in_http_header_should_fallback_to_generated_id(self):
         with self.settings(LOG_REQUEST_ID_HEADER='REQUEST_ID_HEADER', GENERATE_REQUEST_ID_IF_NOT_IN_HEADER=True):
             request = self.factory.get(self.url)
-            middleware = RequestIDMiddleware(get_response=lambda request: None)
-            middleware.process_request(request)
+            RequestIDMiddleware(get_response=self.call_view)(request)
             self.assertTrue(hasattr(request, 'id'))
-            self.call_view(request)
             self.assertTrue(request.id in self.handler.messages[0])
 
     def test_log_requests(self):
@@ -89,10 +84,7 @@ class RequestIDLoggingTestCase(TestCase):
         with self.settings(LOG_REQUESTS=True):
             request = self.factory.get(self.url)
             request.user = DummyUser()
-            middleware = RequestIDMiddleware(get_response=lambda request: None)
-            middleware.process_request(request)
-            response = self.call_view(request)
-            middleware.process_response(request, response)
+            RequestIDMiddleware(get_response=self.call_view)(request)
             self.assertEqual(len(self.handler.messages), 2)
             self.assertTrue('fake_pk' in self.handler.messages[1])
 
@@ -101,10 +93,7 @@ class RequestIDLoggingTestCase(TestCase):
             request = self.factory.get(self.url)
             request.user = DummyUser()
             request.session = SessionStore("session_key")
-            middleware = RequestIDMiddleware(get_response=lambda request: None)
-            middleware.process_request(request)
-            response = self.call_view(request)
-            middleware.process_response(request, response)
+            RequestIDMiddleware(get_response=self.call_view)(request)
             self.assertEqual(len(self.handler.messages), 2)
             self.assertTrue('fake_username' in self.handler.messages[1])
 
@@ -112,10 +101,7 @@ class RequestIDLoggingTestCase(TestCase):
         with self.settings(LOG_REQUESTS=True, LOG_USER_ATTRIBUTE='username'):
             request = self.factory.get(self.url)
             request.session = SessionStore()
-            middleware = RequestIDMiddleware(get_response=lambda request: None)
-            middleware.process_request(request)
-            response = self.call_view(request)
-            middleware.process_response(request, response)
+            RequestIDMiddleware(get_response=self.call_view)(request)
             self.assertEqual(len(self.handler.messages), 2)
             self.assertFalse('fake_username' in self.handler.messages[1])
             self.assertFalse(request.session.accessed)
@@ -125,10 +111,7 @@ class RequestIDLoggingTestCase(TestCase):
             request = self.factory.get(self.url)
             request.user = DummyUser()
             request.session = SessionStore("session_key")
-            middleware = RequestIDMiddleware(get_response=lambda request: None)
-            middleware.process_request(request)
-            response = self.call_view(request)
-            middleware.process_response(request, response)
+            RequestIDMiddleware(get_response=self.call_view)(request)
             self.assertEqual(len(self.handler.messages), 2)
             self.assertFalse('fake_username' in self.handler.messages[1])
             self.assertFalse(request.session.accessed)
@@ -137,19 +120,14 @@ class RequestIDLoggingTestCase(TestCase):
         with self.settings(LOG_REQUEST_ID_HEADER='REQUEST_ID_HEADER'):
             request = self.factory.get(self.url)
             request.META['REQUEST_ID_HEADER'] = 'some_request_id'
-            middleware = RequestIDMiddleware(get_response=lambda request: None)
-            middleware.process_request(request)
-            response = self.call_view(request)
+            response = RequestIDMiddleware(get_response=self.call_view)(request)
             self.assertFalse(response.has_header('REQUEST_ID'))
 
     def test_response_header_set(self):
         with self.settings(LOG_REQUEST_ID_HEADER='REQUEST_ID_HEADER', REQUEST_ID_RESPONSE_HEADER='REQUEST_ID'):
             request = self.factory.get(self.url)
             request.META['REQUEST_ID_HEADER'] = 'some_request_id'
-            middleware = RequestIDMiddleware(get_response=lambda request: None)
-            middleware.process_request(request)
-            response = self.call_view(request)
-            middleware.process_response(request, response)
+            response = RequestIDMiddleware(get_response=self.call_view)(request)
             self.assertTrue(response.has_header('REQUEST_ID'))
 
 
