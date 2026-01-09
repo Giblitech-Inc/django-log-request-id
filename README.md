@@ -25,7 +25,7 @@ So you can grep (or otherwise search) a set of logs for a high-traffic applicati
 How?
 ----
 
-**The request ID is stored in a thread local**. Use of thread locals is not generally considered best practice for Django applications, but seems to be the only viable approach in this case. Pull requests with better ideas are welcome.
+**The request ID is stored in a [`ContextVar`](https://docs.python.org/3/library/contextvars.html#contextvars.ContextVar)**. Use of context variables is not generally considered best practice for Django applications, but seems to be the only viable approach in this case. Pull requests with better ideas are welcome.
 
 Any other neat features?
 ------------------------
