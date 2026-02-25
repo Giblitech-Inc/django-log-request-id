@@ -30,7 +30,9 @@ class RequestIDMiddleware:
         # unless the setting GENERATE_REQUEST_ID_IF_NOT_IN_HEADER
         # was set, in which case generate an id as normal if it wasn't
         # passed in via the header
-        self.generate_request_if_not_in_header = getattr(settings, GENERATE_REQUEST_ID_IF_NOT_IN_HEADER_SETTING, False)
+        self.generate_request_id_if_not_in_header = getattr(
+            settings, GENERATE_REQUEST_ID_IF_NOT_IN_HEADER_SETTING, False
+        )
 
     def __call__(self, request):
         local.request_id = request.id = request_id = self._get_request_id(request)
@@ -71,7 +73,7 @@ class RequestIDMiddleware:
         if self.request_id_header:
             default_request_id = self.default_request_id
 
-            if self.generate_request_if_not_in_header:
+            if self.generate_request_id_if_not_in_header:
                 default_request_id = self._generate_id()
 
             return request.META.get(self.request_id_header, default_request_id)

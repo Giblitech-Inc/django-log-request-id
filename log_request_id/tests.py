@@ -55,7 +55,6 @@ class RequestIDLoggingTestCase(TestCase):
             request.META['REQUEST_ID_HEADER'] = 'some_request_id'
             RequestIDMiddleware(get_response=self.call_view)(request)
             self.assertEqual(request.id, 'some_request_id')
-            self.call_view(request)
             self.assertTrue('some_request_id' in self.handler.messages[0])
 
     def test_default_no_request_id_is_used(self):
