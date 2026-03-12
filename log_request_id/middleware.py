@@ -2,6 +2,8 @@ import logging
 import uuid
 
 from django.conf import settings
+from django.core.signals import request_finished
+from django.dispatch import receiver
 
 from log_request_id import local, REQUEST_ID_HEADER_SETTING, LOG_REQUESTS_SETTING, DEFAULT_NO_REQUEST_ID, \
     REQUEST_ID_RESPONSE_HEADER_SETTING, GENERATE_REQUEST_ID_IF_NOT_IN_HEADER_SETTING, LOG_REQUESTS_NO_SETTING, \
@@ -9,6 +11,14 @@ from log_request_id import local, REQUEST_ID_HEADER_SETTING, LOG_REQUESTS_SETTIN
 
 
 logger = logging.getLogger(__name__)
+
+
+@receiver(request_finished)
+def _clear_request_id(**kwargs):
+    try:
+        del local.request_id
+    except AttributeError:
+        pass
 
 
 class RequestIDMiddleware:
@@ -44,11 +54,6 @@ class RequestIDMiddleware:
 
         if self.log_requests and "favicon" not in request.path:
             logger.info(self.get_log_message(request, response))
-
-        try:
-            del local.request_id
-        except AttributeError:
-            pass
 
         return response
 

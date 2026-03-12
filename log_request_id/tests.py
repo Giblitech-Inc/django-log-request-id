@@ -129,6 +129,13 @@ class RequestIDLoggingTestCase(TestCase):
             response = RequestIDMiddleware(get_response=self.call_view)(request)
             self.assertTrue(response.has_header('REQUEST_ID'))
 
+    def test_request_id_is_available_until_response_close(self):
+        request = self.factory.get(self.url)
+        response = RequestIDMiddleware(get_response=self.call_view)(request)
+        self.assertEqual(local.request_id, request.id)
+        response.close()
+        self.assertFalse(hasattr(local, 'request_id'))
+
 
 # asgiref is required from Django 3.0
 if async_to_sync:
