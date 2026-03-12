@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "django-log-request-id"
-version = "2.1.1"
+version = "2.1.2"
 description = "Django middleware and log filter to attach a unique ID to every log message generated as part of a request"
 readme = "README.md"
 license = "BSD-3-Clause"
