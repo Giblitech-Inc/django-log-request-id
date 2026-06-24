@@ -12,7 +12,7 @@ license-files = ["LICENSE"]
 authors = [
   { name = "DabApps", email = "hello@dabapps.com" },
 ]
-requires-python = ">=3.10"
+requires-python = ">=3.9"
 dependencies = [
   "django>=1.8",
 ]
